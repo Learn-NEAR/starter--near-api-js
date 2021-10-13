@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/near-api-js@0.43.1/dist/near-api-js.min.js"></script>
+  </head>
+  <body>
+    <button>Login</button>
+
+    <script>
+      (async () => {
+        const NETWORK = 'testnet';
+
+        const { connect, keyStores, WalletConnection } = nearApi;
+
+        const button = document.querySelector('button');
+
+        const near = await connect(config());
+        const wallet = new WalletConnection(near, `${NETWORK}-custom-prefix`); // supports logging in with different keys on the same domain
+
+        if (wallet.isSignedIn()) {
+          const accountId = wallet.getAccountId();
+          button.innerHTML = `Logout ${accountId}`;
+          button.addEventListener('click', signOut);
+        } else {
+          button.addEventListener('click', signIn);
+        }
+
+        // ----------------
+        // Helper functions
+        // ----------------
+
+        function signIn() {
+          wallet.requestSignIn({
+            contractId: NETWORK === 'testnet' ? 'unv.testnet' : 'unv.near',
+            methodNames: []
+          });
+        }
+
+        function signOut() {
+          wallet.signOut();
+          button.innerHTML = 'Login';
+        }
+
+        function config(network = NETWORK) {
+          return {
+            testnet: {
+              networkId: 'testnet',
+              keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+              nodeUrl: 'https://rpc.testnet.near.org',
+              walletUrl: 'https://wallet.testnet.near.org',
+              helperUrl: 'https://helper.testnet.near.org',
+              explorerUrl: 'https://explorer.testnet.near.org'
+            },
+            mainnet: {
+              networkId: 'mainnet',
+              keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+              nodeUrl: 'https://rpc.mainnet.near.org',
+              walletUrl: 'https://wallet.mainnet.near.org',
+              helperUrl: 'https://helper.mainnet.near.org',
+              explorerUrl: 'https://explorer.mainnet.near.org'
+            }
+          }[network];
+        }
+      })();
+    </script>
+  </body>
+</html>

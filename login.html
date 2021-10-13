@@ -49,25 +49,15 @@
           button.innerHTML = 'Login';
         }
 
-        function config(network = 'testnet') {
+        function config() {
           return {
-            testnet: {
-              networkId: 'testnet',
-              keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-              nodeUrl: 'https://rpc.testnet.near.org',
-              walletUrl: 'https://wallet.testnet.near.org',
-              helperUrl: 'https://helper.testnet.near.org',
-              explorerUrl: 'https://explorer.testnet.near.org'
-            },
-            mainnet: {
-              networkId: 'mainnet',
-              keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-              nodeUrl: 'https://rpc.mainnet.near.org',
-              walletUrl: 'https://wallet.mainnet.near.org',
-              helperUrl: 'https://helper.mainnet.near.org',
-              explorerUrl: 'https://explorer.mainnet.near.org'
-            }
-          }[network];
+            networkId: 'testnet',
+            keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+            nodeUrl: 'https://rpc.testnet.near.org',
+            walletUrl: 'https://wallet.testnet.near.org',
+            helperUrl: 'https://helper.testnet.near.org',
+            explorerUrl: 'https://explorer.testnet.near.org'
+          };
         }
       })();
     </script>

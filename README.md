@@ -8,5 +8,5 @@ This is a simple project to help you get started with frontend development on NE
 ├── index.html                # default page, nothing here
 ├── login.html                # code to login to NEAR Wallet
 ├── contract.html             # code to call view and change methods (basic)
-├── contract-advanced.html    # code to call view and change methods (advanced)
+└── contract-advanced.html    # code to call view and change methods (advanced)
 ```

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login to NEAR</title>
+    <script src="https://cdn.jsdelivr.net/gh/nearprotocol/near-api-js/dist/near-api-js.js"></script>
+  </head>
+  <body>
+    <nav>
+      <div><a href="index.html">home</a></div>
+      <div><a href="login.html">login</a></div>
+      <div><a href="contract.html">contract</a></div>
+    </nav>
+    <hr />
+    <button>Login</button>
+
+    <script>
+      (async () => {
+        const { connect, keyStores, WalletConnection } = nearApi;
+
+        const button = document.querySelector('button');
+
+        const near = await connect(config());
+        const wallet = new WalletConnection(near, 'ncd-ii');
+
+        if (wallet.isSignedIn()) {
+          const accountId = wallet.getAccountId();
+          button.innerHTML = `Logout ${accountId}`;
+          button.addEventListener('click', signOut);
+        } else {
+          button.addEventListener('click', signIn);
+        }
+
+        // ----------------
+        // Helper functions
+        // ----------------
+
+        function signIn() {
+          wallet.requestSignIn('dev-1634098284641-40067785396400', 'Starter Kit Login');
+        }
+
+        function signOut() {
+          wallet.signOut();
+          button.innerHTML = 'Login';
+        }
+
+        function config() {
+          return {
+            networkId: 'testnet',
+            keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+            nodeUrl: 'https://rpc.testnet.near.org',
+            walletUrl: 'https://wallet.testnet.near.org',
+            helperUrl: 'https://helper.testnet.near.org',
+            explorerUrl: 'https://explorer.testnet.near.org'
+          };
+        }
+      })();
+    </script>
+  </body>
+</html>

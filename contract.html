@@ -38,7 +38,6 @@
         });
 
         if (wallet.isSignedIn()) {
-          const accountId = wallet.getAccountId();
           dom.btnHello.addEventListener('click', async () => console.log(await contract.helloWorld()));
           dom.btnRead.addEventListener('click', async () => console.log(await contract.read({ key: dom.txtReadKey.value })));
           dom.btnWrite.addEventListener('click', async () => console.log(await contract.write({ key: dom.txtWriteKey.value, value: dom.txtWriteValue.value })));

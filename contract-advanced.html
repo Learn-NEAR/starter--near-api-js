@@ -26,7 +26,7 @@
         const { connect, keyStores, WalletConnection } = nearApi;
 
         const CONTRACT_ID = 'dev-1634098284641-40067785396400';
-        // const gas = new BN('1000'); uncomment this line to see an error re: "Exceeded the prepaid gas"
+        // const gas = new BN('1000'); // uncomment this line to see an error re: "Exceeded the prepaid gas"
 
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');

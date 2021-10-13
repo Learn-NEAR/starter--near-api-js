@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login to NEAR</title>
-    <script src="https://cdn.jsdelivr.net/gh/nearprotocol/near-api-js/dist/near-api-js.js"></script>
+    <script src="/lib/near-api-js.js"></script>
   </head>
   <body>
     <nav>
@@ -38,7 +38,10 @@
         // ----------------
 
         function signIn() {
-          wallet.requestSignIn('dev-1634098284641-40067785396400', 'Starter Kit Login');
+          wallet.requestSignIn({
+            contractId: 'dev-1634098284641-40067785396400',
+            methodNames: ['write']
+          });
         }
 
         function signOut() {

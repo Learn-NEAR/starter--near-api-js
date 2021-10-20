@@ -49,10 +49,16 @@
         async function change(contract, method, args, gas, amount) {
           console.log('attempting to send signed transaction ...');
           const response = await wallet.account().functionCall(contract, method, args, gas, amount);
-          const { transaction_outcome: txo } = response;
+          console.log('response received.');
+
+          const { transaction_outcome: txo, status } = response;
+
           console.log(`gas burned: ${txo.outcome.gas_burnt}`);
           console.log(`tokens burned: ${txo.outcome.tokens_burnt}`);
           console.log(`logs: \n${txo.outcome.logs}`);
+
+          const { SuccessValue: value } = status;
+          console.log(atob(value)); // see here for decoding Base64 response https://stackoverflow.com/q/33854103/2836874
         }
 
         async function view(contract, method, args) {

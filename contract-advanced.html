@@ -58,7 +58,7 @@
           console.log(`logs: \n${txo.outcome.logs}`);
 
           const { SuccessValue: value } = status;
-          console.log(atob(value)); // see here for decoding Base64 response https://stackoverflow.com/q/33854103/2836874
+          console.log(b64DecodeUnicode(value)); // see helper functions below
         }
 
         async function view(contract, method, args) {
@@ -86,6 +86,30 @@
             txtWriteKey: document.querySelector('#write-key'),
             txtWriteValue: document.querySelector('#write-value')
           };
+        }
+
+        // ------------------------
+        // see here for decoding simple ASCII response https://stackoverflow.com/q/33854103/2836874
+        // see here for decoding UTF-8 data in response (eg. if you want emoji support) https://stackoverflow.com/a/30106551/2836874
+        // ------------------------
+        // Encoding UTF8 ⇢ base64
+        function b64EncodeUnicode(str) {
+          return btoa(
+            encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+              return String.fromCharCode(parseInt(p1, 16));
+            })
+          );
+        }
+
+        // Decoding base64 ⇢ UTF8
+        function b64DecodeUnicode(str) {
+          return decodeURIComponent(
+            Array.prototype.map
+              .call(atob(str), function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join('')
+          );
         }
       })();
     </script>

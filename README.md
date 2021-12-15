@@ -2,6 +2,14 @@
 
 This is a simple project to help you get started with frontend development on NEAR Protocol
 
+## Quick Reference
+
+[near-api-js / quick-reference](https://github.com/near/near-api-js/blob/master/examples/quick-reference.md)
+
+## Cookbook
+
+[near-api-js / cookbook](https://github.com/near/near-api-js/tree/master/examples/cookbook)
+
 ## Files
 
 ```txt

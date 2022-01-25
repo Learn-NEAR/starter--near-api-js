@@ -1,3 +1,5 @@
+Fork to my own github
+
 # `near-api-js` Starter Kit
 
 This is a simple project to help you get started with frontend development on NEAR Protocol

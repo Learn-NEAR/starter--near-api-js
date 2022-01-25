@@ -5,15 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call Contract Methods using NEAR</title>
-    <script src="/lib/near-api-js.js"></script>
+    <script src="/js/near-api-js.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
-    <nav>
-      <div><a href="index.html">home</a></div>
-      <div><a href="login.html">login</a></div>
-      <div><a href="contract.html">contract</a></div>
-    </nav>
+    <div class="header">
+      <a href="#default" class="logo">Block Viewer</a>
+      <div class="header-right">
+        <!-- <a href="index.html">home</a> -->
+        <!-- <a href="login.html">login</a> -->
+        <!-- <a href="contract.html">contract</a> -->
+        <button id="loginBtn">Login to NEAR Account</button>
+      </div>
+    </div>
     <hr />
+    <!-- <button>Login</button> -->
+
     <button id="hello">helloWorld</button>
     <br />
     <button id="read">read</button> <input type="text" id="read-key" placeholder="key" />
@@ -23,12 +30,10 @@
     <script>
       (async () => {
         const { connect, keyStores, WalletConnection, Contract } = nearApi;
-
+        const button = document.querySelector('button[id="loginBtn');
         const CONTRACT_ID = 'dev-1634098284641-40067785396400';
-
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');
-
         const dom = setupDOMBindings();
 
         const contract = new Contract(wallet.account(), CONTRACT_ID, {
@@ -38,9 +43,32 @@
         });
 
         if (wallet.isSignedIn()) {
+          const accountId = wallet.getAccountId();
+          button.innerHTML = `Logout ${accountId}`;
+          button.addEventListener('click', signOut);
           dom.btnHello.addEventListener('click', async () => console.log(await contract.helloWorld()));
           dom.btnRead.addEventListener('click', async () => console.log(await contract.read({ key: dom.txtReadKey.value })));
           dom.btnWrite.addEventListener('click', async () => console.log(await contract.write({ key: dom.txtWriteKey.value, value: dom.txtWriteValue.value })));
+        } else {
+          button.addEventListener('click', signIn);
+        }
+
+        // ------------------------
+        // ------------------------
+        // Helper functions
+        // ------------------------
+        // ------------------------
+
+        function signIn() {
+          wallet.requestSignIn({
+            contractId: 'dev-1634098284641-40067785396400',
+            methodNames: ['write']
+          });
+        }
+
+        function signOut() {
+          wallet.signOut();
+          button.innerHTML = 'Login';
         }
 
         function config() {

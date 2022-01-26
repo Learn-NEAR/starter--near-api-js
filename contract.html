@@ -5,33 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call Contract Methods using NEAR</title>
-    <script src="/js/near-api-js.js"></script>
+    <script src="js/near-api-js.js"></script>
     <link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
     <div class="header">
-      <a href="#default" class="logo">Block Viewer</a>
+      <a href="#default" class="logo">NEAR Bootcamp Demo</a>
       <div class="header-right">
         <!-- <a href="index.html">home</a> -->
         <!-- <a href="login.html">login</a> -->
         <!-- <a href="contract.html">contract</a> -->
-        <button id="loginBtn">Login to NEAR Account</button>
+        <button id="btnLogin">Login to NEAR Account</button>
       </div>
     </div>
     <hr />
     <!-- <button>Login</button> -->
+    <div class="flex-container">
+      <div class="item1">
+        <div id="section"><button id="hello">helloWorld</button></div>
+        
+        <div id="section"><button id="read">read</button> <input type="text" id="read-key" placeholder="key" /></div>
 
-    <button id="hello">helloWorld</button>
-    <br />
-    <button id="read">read</button> <input type="text" id="read-key" placeholder="key" />
-    <br />
-    <button id="write">write</button> <input type="text" id="write-key" placeholder="key" /> <input type="text" id="write-value" placeholder="value" />
+        <div id="section"><button id="write">write</button> <input type="text" id="write-key" placeholder="key" /> <input type="text" id="write-value" placeholder="value" /></div>
+      </div>
+    </div>
 
     <script>
       (async () => {
         const { connect, keyStores, WalletConnection, Contract } = nearApi;
-        const button = document.querySelector('button[id="loginBtn');
-        const CONTRACT_ID = 'dev-1634098284641-40067785396400';
+        const button = document.querySelector('button[id="btnLogin"');
+        const CONTRACT_ID = 'neardemo.jacobn.testnet';
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');
         const dom = setupDOMBindings();
@@ -51,6 +54,9 @@
           dom.btnWrite.addEventListener('click', async () => console.log(await contract.write({ key: dom.txtWriteKey.value, value: dom.txtWriteValue.value })));
         } else {
           button.addEventListener('click', signIn);
+          dom.btnHello.addEventListener('click', async () => console.log("Please login"));
+          dom.btnRead.addEventListener('click', async () => console.log("Please login"));
+          dom.btnWrite.addEventListener('click', async () => console.log("Please login")); 
         }
 
         // ------------------------
@@ -68,7 +74,7 @@
 
         function signOut() {
           wallet.signOut();
-          button.innerHTML = 'Login';
+          location.reload();
         }
 
         function config() {

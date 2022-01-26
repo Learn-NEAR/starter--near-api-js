@@ -59,6 +59,58 @@ body {
   .header-right {
     float: right;
   }
+
+  #section {
+    overflow: hidden;
+    background-color: #f1f1f1;
+    padding: 10px 10px;
+    background-image: url('/images/aqua-white-aqua.png');
+    background-size:cover;
+  }
+  #section button {
+    float: left;
+    color: black;
+    text-align: center;
+    padding: 9px;
+    text-decoration: none;
+    font-size: 15px; 
+    line-height: 17px;
+    border-radius: 10px;
+  }
+  #section input {
+    float: left;
+    color: black;
+    text-align: center;
+    padding: 9px;
+    text-decoration: none;
+    font-size: 15px; 
+    line-height: 17px;
+    margin-left: 10px;
+    border-radius: 10px;
+  }
+
+  .flex-container {
+
+    display: flex;
+      
+    /* flex-flow: column wrap; */ 
+    flex-direction: column; 
+    flex-wrap: wrap; 
+
+    background:transparent;
+    height: 100%;
+    padding: 15px;
+    gap: 5px;
+
+  }
+
+  .flex-container > div{
+    /* background: #ffecb3; */
+    border: 3px solid #ffffff;
+    border-radius: 5px;
+    /* padding: 8px; */
+  }
+
   
   @media screen and (max-width: 500px) {
     .header a {

@@ -33,7 +33,7 @@
       </div>
       <div class="item2">
         <!-- Get value of given account  -->
-        <div id="section"><button id="value">random number</button> <input type="text" id="account-value" placeholder="null" disabled/></div>
+        <div id="section"><button id="btnBlock">current block</button> <input type="text" id="account-value" placeholder="null" disabled/></div>
       </div>
   
     </div>
@@ -41,17 +41,19 @@
     <script>
       (async () => {
         const { connect, keyStores, WalletConnection, Contract } = nearApi;
-        const button = document.querySelector('button[id="btnLogin"');
-        const CONTRACT_ID = 'neardemo.jacobn.testnet';
+        const button = document.querySelector('button[id="btnLogin"]');
+        const buttonBlock = document.querySelector('button[id="btnBlock"]');
+        const CONTRACT_ID = 'newdemo.jacobn.testnet';
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');
         const dom = setupDOMBindings();
 
         const contract = new Contract(wallet.account(), CONTRACT_ID, {
-          viewMethods: ['helloWorld', 'read'],
+          viewMethods: ['helloWorld', 'read', 'get_block'],
           changeMethods: ['write'],
           sender: wallet.account()
         });
+
 
         if (wallet.isSignedIn()) {
           const accountId = wallet.getAccountId();
@@ -60,11 +62,13 @@
           dom.btnHello.addEventListener('click', async () => console.log(await contract.helloWorld()));
           dom.btnRead.addEventListener('click', async () => console.log(await contract.read({ key: dom.txtReadKey.value })));
           dom.btnWrite.addEventListener('click', async () => console.log(await contract.write({ key: dom.txtWriteKey.value, value: dom.txtWriteValue.value })));
+          buttonBlock.addEventListener('click', async () => console.log(await contract.get_block()));
         } else {
           button.addEventListener('click', signIn);
           dom.btnHello.addEventListener('click', async () => console.log("Please login"));
           dom.btnRead.addEventListener('click', async () => console.log("Please login"));
-          dom.btnWrite.addEventListener('click', async () => console.log("Please login")); 
+          dom.btnWrite.addEventListener('click', async () => console.log("Please login"));
+          buttonBlock.addEventListener('click', async () => console.log("Please login"));
         }
 
         // ------------------------
@@ -73,17 +77,22 @@
         // ------------------------
         // ------------------------
 
-        async function signIn() {
+        function signIn() {
           wallet.requestSignIn({
-            contractId: 'dev-1634098284641-40067785396400',
+            contractId: 'newdemo.jacobn.testnet',
             methodNames: ['write']
           });
         }
 
-        async function signOut() {
+        function signOut() {
           wallet.signOut();
           location.reload();
         }
+
+        function get_block() {
+          contract.get_block();
+        }
+
 
         function config() {
           return {

@@ -22,12 +22,20 @@
     <!-- <button>Login</button> -->
     <div class="flex-container">
       <div class="item1">
+        <!-- Hello World button -->
         <div id="section"><button id="hello">helloWorld</button></div>
         
+        <!-- Read value from given key -->
         <div id="section"><button id="read">read</button> <input type="text" id="read-key" placeholder="key" /></div>
 
+        <!-- Insert key/value pair to contract -->
         <div id="section"><button id="write">write</button> <input type="text" id="write-key" placeholder="key" /> <input type="text" id="write-value" placeholder="value" /></div>
       </div>
+      <div class="item2">
+        <!-- Get value of given account  -->
+        <div id="section"><button id="value">random number</button> <input type="text" id="account-value" placeholder="null" disabled/></div>
+      </div>
+  
     </div>
 
     <script>
@@ -65,14 +73,14 @@
         // ------------------------
         // ------------------------
 
-        function signIn() {
+        async function signIn() {
           wallet.requestSignIn({
             contractId: 'dev-1634098284641-40067785396400',
             methodNames: ['write']
           });
         }
 
-        function signOut() {
+        async function signOut() {
           wallet.signOut();
           location.reload();
         }

@@ -63,7 +63,7 @@
         const buttonAccountValue = document.querySelector('button[id="btnBalance"]');
         const any_account_balance = document.querySelector('button[id="any_balance"]');
         const buttonSend = document.querySelector('button[id="btnSend"]');
-        const CONTRACT_ID = 'neardemo.jacobn.testnet';
+        const CONTRACT_ID = 'neardemo2.jacobn.testnet';
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');
         const dom = setupDOMBindings();
@@ -103,7 +103,7 @@
 
         function signIn() {
           wallet.requestSignIn({
-            contractId: 'neardemo.jacobn.testnet',
+            contractId: 'neardemo2.jacobn.testnet',
             methodNames: ['write']
           });
         }
@@ -149,7 +149,7 @@
         async function send_tokens(amount, to_account) {
           // sends NEAR tokens
           const yocto_to_send = await to_yocto(amount);
-          const account = await near.account(CONTRACT_ID);
+          const account = await near.account('jacobn.testnet');
           const balance = await account.getAccountBalance();
           const avail = balance.available;
           if (yocto_to_send > avail) {

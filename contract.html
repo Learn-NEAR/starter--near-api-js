@@ -50,6 +50,10 @@
           <input type="text" id="send_to_account" placeholder="receiver.testnet"/>
           <span id="send_success"></span>
         </div>
+        <div id="section">
+          <button id="btnCreateAccount">create account</button> 
+          <input type="text" id="create_account_name" placeholder="account-to-create.testnet"/>
+        </div>
       </div>
       
   
@@ -57,20 +61,21 @@
 
     <script>
       (async () => {
-        const { connect, keyStores, WalletConnection, Contract, utils } = nearApi;
+        const { connect, keyStores, WalletConnection, Contract, utils, Signer } = nearApi;
         const button = document.querySelector('button[id="btnLogin"]');
         const buttonBlock = document.querySelector('button[id="btnBlock"]');
         const buttonAccountValue = document.querySelector('button[id="btnBalance"]');
         const any_account_balance = document.querySelector('button[id="any_balance"]');
         const buttonSend = document.querySelector('button[id="btnSend"]');
+        const buttonCreate = document.querySelector('button[id="btnCreateAccount"]');
         const CONTRACT_ID = 'neardemo2.jacobn.testnet';
         const near = await connect(config());
         const wallet = new WalletConnection(near, 'ncd-ii');
         const dom = setupDOMBindings();
 
         const contract = new Contract(wallet.account(), CONTRACT_ID, {
-          viewMethods: ['helloWorld', 'read', 'get_block', 'get_balance'],
-          changeMethods: ['write'],
+          viewMethods: ['helloWorld', 'read', 'get_block', 'get_balance', 'getBalance'],
+          changeMethods: ['write', 'transfer'],
           sender: wallet.account()
         });
 
@@ -85,7 +90,8 @@
           buttonBlock.addEventListener('click', async () => get_block());
           buttonAccountValue.addEventListener('click', async () => get_balance());
           any_account_balance.addEventListener('click', async () => get_any_balance(document.getElementById("account_value_id").value));
-          buttonSend.addEventListener('click', async () => send_tokens(parseInt(document.getElementById('amount_to_send').value), document.getElementById('send_to_account').value));
+          buttonSend.addEventListener('click', async () => send_tokens());
+          buttonCreate.addEventListener('click', async () => create_new_account())
         } else {
           button.addEventListener('click', signIn);
           dom.btnHello.addEventListener('click', async () => console.log("Please login"));
@@ -146,21 +152,35 @@
           }
         }
 
-        async function send_tokens(amount, to_account) {
-          // sends NEAR tokens
-          const yocto_to_send = await to_yocto(amount);
-          const account = await near.account('jacobn.testnet');
-          const balance = await account.getAccountBalance();
-          const avail = balance.available;
-          if (yocto_to_send > avail) {
-            console.log("You're too broke");
-          } else {
-            console.log(`Amount to send is less than available amount, here we go!`);
-            await account.sendMoney(
-            to_account, // receiver account
-            yocto_to_send // amount in yoctoNEAR
-            );
-          }
+
+        
+        // send from logged in account to another account (not working)
+        // async function send_tokens(amount, to_account) {
+        //   const yocto_to_send = await to_yocto(amount);
+        //   const account = await near.account('jacobn.testnet');
+        //   const balance = await account.getAccountBalance();
+        //   const avail = balance.available;
+        //   if (yocto_to_send > avail) {
+        //     console.log("You're too broke");
+        //   } else {
+        //     console.log(`Amount to send is less than available amount, here we go!`);
+        //     await account.sendMoney(
+        //     to_account, // receiver account
+        //     yocto_to_send // amount in yoctoNEAR
+        //     );
+        //   }
+        // }
+
+        // send tokens (via contract)
+        async function send_tokens() {
+          const to_account = document.getElementById('send_to_account').value;
+          const amount = await toString(await to_yocto(parseInt(document.getElementById('amount_to_send').value)));
+          const send = await contract.transfer({to: to_account, tokens: amount});
+        }
+
+        // create a new account (not working)
+        async function create_new_account() {
+          near.createAccount('testerooosoos.jacobn.testnet', Signer.createKey('jacobn.testnet', 'testnet'), 100);
         }
 
         function from_yocto(in_near) {

@@ -131,6 +131,9 @@ body {
     margin-left: 10px;
     border-radius: 10px;
   }
+  #section span img {
+    visibility: hidden;
+  }
 
   .flex-container {
 

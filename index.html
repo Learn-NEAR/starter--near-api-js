@@ -1,41 +1,317 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>NEAR Demo by Jacob Naumann</title>
-  
-  <meta name="description" content="A simple NEAR Blockchain demo.">
-  <meta name="author" content="Jacob Naumann">
-
-  <meta property="og:title" content="Basic NEAR Demo Homepage">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.sitepoint.com/a-basic-html5-template/">
-  <meta property="og:description" content="A simple NEAR Blockchain demo page for created for NEAR bootcamp">
-  <meta property="og:image" content="image.png">
-  <script src="/js/near-api-js.js"></script>
-  <script src="/js/scripts.js"></script>
-  <link rel="icon" href="/favicon.ico">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-  <link rel="stylesheet" href="css/styles.css">
-
-</head>
-
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call Contract Methods using NEAR</title>
+    <script src="js/near-api-js.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
     <div class="header">
-      <a href="#default" class="logo">Block Viewer</a>
+      <a href="#default" class="logo">NEAR Bootcamp Demo</a>
       <div class="header-right">
-        <a href="index.html">home</a>
-        <a href="login.html">login</a>
-        <a href="contract.html">contract</a>
+        <button id="btnLogin">Login to NEAR Account</button>
       </div>
     </div>
-    
-  <!-- your content here... -->
-  <script src="js/scripts.js"></script>
-</body>
+    <hr />
+    <div class="flex-container">
+      <div class="item1">
+        <!-- Hello World button -->
+        <div id="section"><button id="hello">helloWorld</button></div>
+        
+        <!-- Read value from given key -->
+        <div id="section"><button id="read">read</button> <input type="text" id="read-key" placeholder="key" /></div>
+
+        <!-- Insert key/value pair to contract -->
+        <div id="section">
+          <button id="write">write</button> 
+          <input type="text" id="write-key" placeholder="key" /> 
+          <input type="text" id="write-value" placeholder="value" />
+          <!-- <span id="loading-gif"><img src='images/loading2.gif'></span> -->
+        </div>
+
+        <!-- find out if key exists in contrct -->
+        <div id="section">
+          <button id="btnKeyExists">does key exist?</button> 
+          <input type="text" id="key_to_find" placeholder="key" /> 
+          <span id="exists_span"></span>
+        </div>
+      </div>
+
+      <div class="item2">
+        <!-- Get value of current block number  -->
+        <div id="section">
+          <button id="btnBlock">current block</button> 
+          <input type="text" id="blockNum" placeholder="null" disabled/>
+          <span id="thanks-ethuil"></span>
+        </div>
+        <div id="section">
+          <button id="btnStamp">current blocktimestamp</button> 
+          <input type="text" id="blockStamp" placeholder="null" disabled/>
+          <span id="stampSpan"></span>
+        </div>
+        <div id="section">
+          <button id="btnBalance">contract balance</button> 
+          <input type="text" id="contract-balance" placeholder="null" disabled/>
+        </div>
+        <div id="section">
+          <button id="any_balance">any balance</button>
+          <input type="text" id="account_value_id" placeholder="example.testnet"/>
+          <span id="amount-in-account"></span>
+        </div>
+        <div id="section">
+          <button id="btnRandom">rng</button>
+          <input type="text" id="rng_input" placeholder="null"/>
+        </div>
+
+        
+        <!-- send near with contract  -->
+        <div id="section">
+          <button id="btnSend">send via contract</button>
+          <input type="text" id="amount_to_send" placeholder="amount in near"/>
+          <input type="text" id="send_to_account" placeholder="receiver.testnet"/>
+          <span id="send_success"></span>
+        </div>
+        <!-- send near with near-api-js -->
+        <div id="section">
+          <button id="btnSend_api">send with api</button>
+          <input type="text" id="amount_to_send_api" placeholder="amount in near"/>
+          <input type="text" id="send_to_account_api" placeholder="receiver.testnet"/>
+          <span id="send_success_api"></span>
+        </div>
+
+        <div id="section">
+          <button id="btnCreateAccount">create account</button> 
+          <input type="text" id="create_account_name" placeholder="account-to-create.testnet"/>
+        </div>
+      </div>
+      
+  
+    </div>
+
+    <script>
+      (async () => {
+        const { connect, keyStores, WalletConnection, Contract, utils, Signer } = nearApi;
+        const button = document.querySelector('button[id="btnLogin"]');
+        const buttonKeyExists = document.querySelector('button[id="btnKeyExists"]');
+        const buttonBlock = document.querySelector('button[id="btnBlock"]');
+        const buttonStamp = document.querySelector('button[id="btnStamp"]');
+        const buttonAccountValue = document.querySelector('button[id="btnBalance"]');
+        const any_account_balance = document.querySelector('button[id="any_balance"]');
+        const buttonRandom = document.querySelector('button[id="btnRandom"]');
+        const buttonSend = document.querySelector('button[id="btnSend"]');
+        const buttonSend_api = document.querySelector('button[id="btnSend_api"]');
+        const buttonCreate = document.querySelector('button[id="btnCreateAccount"]');
+        const CONTRACT_ID = 'bootcamp-demo.jacobn.testnet';
+        const near = await connect(config());
+        const wallet = new WalletConnection(near, 'ncd-ii');
+        const dom = setupDOMBindings();
+
+        const contract = new Contract(wallet.account(), CONTRACT_ID, {
+          viewMethods: ['helloWorld', 
+                        'read', 
+                        'hasKey',
+                        'get_block', 
+                        'get_blockTimeStamp', 
+                        'get_balance',
+                        'randomSeed', 
+                        'getBalance'],
+          changeMethods: ['write', 'transfer'],
+          sender: wallet.account()
+        });
+
+
+        if (wallet.isSignedIn()) {
+          const accountId = wallet.getAccountId();
+          button.innerHTML = `Logout ${accountId}`;
+          button.addEventListener('click', signOut);
+          dom.btnHello.addEventListener('click', async () => console.log(await contract.helloWorld()));
+          dom.btnRead.addEventListener('click', async () => console.log(await contract.read({ key: dom.txtReadKey.value })));
+          dom.btnWrite.addEventListener('click', async () => write_to_contract(document.getElementById('write-key').value, document.getElementById('write-value').value));
+          buttonKeyExists.addEventListener('click', async () => findKey(document.getElementById('key_to_find').value));
+          buttonBlock.addEventListener('click', async () => get_block());
+          buttonStamp.addEventListener('click', async () => get_blockTimeStamp());
+          buttonAccountValue.addEventListener('click', async () => get_balance());
+          any_account_balance.addEventListener('click', async () => get_any_balance(document.getElementById("account_value_id").value));
+          buttonRandom.addEventListener('click', async => getRandom());
+          buttonSend.addEventListener('click', async () => send_tokens());
+          buttonSend_api.addEventListener('click', async () => send_tokens_api());
+          buttonCreate.addEventListener('click', async () => create_new_account())
+        } else {
+          button.addEventListener('click', signIn);
+          dom.btnHello.addEventListener('click', async () => console.log("Please login"));
+          dom.btnRead.addEventListener('click', async () => console.log("Please login"));
+          dom.btnWrite.addEventListener('click', async () => console.log("Please login"));
+          buttonBlock.addEventListener('click', async () => console.log("Please login"));
+          buttonAccountValue.addEventListener('click', async () => console.log("Please login"));
+        }
+
+        // ------------------------
+        // ------------------------
+        // Helper functions
+        // ------------------------
+        // ------------------------
+
+        function signIn() {
+          wallet.requestSignIn({
+            contractId: 'bootcamp-demo.jacobn.testnet',
+            methodNames: ['write']
+          });
+        }
+
+        function signOut() {
+          wallet.signOut();
+          location.reload();
+        }
+
+        async function write_to_contract(key_to_write, value_to_write) {
+          console.log(await contract.write({ key: key_to_write, value: value_to_write }));
+        }
+
+        async function findKey(key_to_find) {
+          console.log(await contract.hasKey({ key: key_to_find }));
+        }
+
+        async function get_block() {
+          const block = await contract.get_block();
+          document.getElementById('blockNum').value = block;
+          document.getElementById('thanks-ethuil').innerHTML = "thanks to ethuil for the help";
+        }
+
+        async function get_blockTimeStamp() {
+          const blockStamp = await contract.get_blockTimeStamp();
+          document.getElementById('blockStamp').value = blockStamp;
+        }
+
+        async function get_balance() {
+          const bal = await contract.get_balance();
+          const amountInYocto = await from_yocto(bal);
+          document.getElementById('contract-balance').value = amountInYocto;
+          console.log(amountInYocto);
+        }
+
+        async function get_any_balance(account_name) {
+          try
+          {
+            // gets account balance
+            const account = await near.account(account_name);
+            const balance = await account.getAccountBalance();
+            const avail = balance.available;
+            const avail_in_yocto = await from_yocto(avail);
+            document.getElementById('amount-in-account').innerHTML = avail_in_yocto;
+            const not_in_yocto = toFixed(to_yocto(avail_in_yocto));
+            console.log(not_in_yocto);
+            console.log(balance);
+
+          }
+          catch(ex)
+          {
+            console.log("Error! Are you sure you put in the correct account ID?");
+          }
+        }
+
+        async function get_random() {
+          const rnd = await contract.randomSeed();
+          document.getElementById('rng_input').innerHTML = rnd;
+        }
+
+
+        
+        // send from logged in account to another account (not working)
+        async function send_tokens_api() {
+          const amt = toFixed(to_yocto(document.getElementById('amount_to_send_api').value));
+          console.log(amt);
+          const receiver = document.getElementById('send_to_account_api').value;
+          const senderAccount = await near.account(wallet.getAccountId());
+          const balance = await senderAccount.getAccountBalance();
+          const avail = balance.available;
+          if (amt > avail) {
+            console.log("You're too broke");
+          } else {
+            console.log(`Amount to send is less than available amount, here we go!`);
+            await senderAccount.sendMoney(
+            receiver, // receiver account
+            amt // amount in yoctoNEAR
+            );
+          }
+        }
+        // async function send_tokens_api() {
+        //   const sender = wallet.getAccountId();
+        //   console.log(sender);
+        //   const receiver = document.getElementById('send_to_account_api').value;
+        //   console.log(receiver);
+        //   const amount = await toFixed(to_yocto(document.getElementById('amount_to_send_api').value));
+        //   console.log(amount);
+        //   const senderAccount = await near.account(sender);
+        //   console.log(sender);
+        //   const result = await senderAccount.sendMoney(receiver, amount);
+        //   console.log('Transaction Complete');
+        // }
+
+        // send tokens (via contract)
+        async function send_tokens() {
+          const to_account = document.getElementById('send_to_account').value;
+          const amount = await toString(await to_yocto(parseInt(document.getElementById('amount_to_send').value)));
+          const send = await contract.transfer({to: to_account, tokens: amount});
+        }
+
+        // create a new account (not working)
+        async function create_new_account() {
+          near.createAccount('testerooosoos.jacobn.testnet', Signer.createKey('jacobn.testnet', 'testnet'), 100);
+        }
+
+        function from_yocto(in_near) {
+          var in_yocto = in_near  * 10 ** -24;
+          return in_yocto;
+        }
+        function to_yocto(in_yocto) {
+          var in_near = in_yocto * 10 ** 24;
+          return in_near;
+        }
+
+        function toFixed(x) {
+          if (Math.abs(x) < 1.0) {
+            var e = parseInt(x.toString().split('e-')[1]);
+            if (e) {
+                x *= Math.pow(10,e-1);
+                x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
+            }
+          } else {
+            var e = parseInt(x.toString().split('+')[1]);
+            if (e > 20) {
+                e -= 20;
+                x /= Math.pow(10,e);
+                x += (new Array(e+1)).join('0');
+            }
+          }
+          return x;
+        }
+
+
+        function config() {
+          return {
+            networkId: 'testnet',
+            keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+            nodeUrl: 'https://rpc.testnet.near.org',
+            walletUrl: 'https://wallet.testnet.near.org',
+            helperUrl: 'https://helper.testnet.near.org',
+            explorerUrl: 'https://explorer.testnet.near.org'
+          };
+        }
+
+        function setupDOMBindings() {
+          return {
+            btnHello: document.querySelector('#hello'),
+            btnRead: document.querySelector('#read'),
+            txtReadKey: document.querySelector('#read-key'),
+            btnWrite: document.querySelector('#write'),
+            txtWriteKey: document.querySelector('#write-key'),
+            txtWriteValue: document.querySelector('#write-value')
+          };
+        }
+      })();
+    </script>
+  </body>
 </html>

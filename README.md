@@ -1,12 +1,12 @@
-Fork to my own github
+READNE File for my NEAR charity project demo
 
 # `near-api-js` Starter Kit
 
 This is a simple project to help you get started with frontend development on NEAR Protocol
 
-## Quick Reference
+## Github
 
-[near-api-js / quick-reference](https://github.com/near/near-api-js/blob/master/examples/quick-reference.md)
+(https://github.com/near/near-api-js/blob/master/examples/quick-reference.md)
 
 ## Cookbook
 

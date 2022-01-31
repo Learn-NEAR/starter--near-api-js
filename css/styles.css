@@ -1,14 +1,14 @@
-
 * {box-sizing: border-box;}
 
 html {
-    background-image: url('/images/blue-lightblue.png');
+    background-image: url('/frontend/images/blue-lightblue.png');
     background-size:cover;
+    font-family: 'Montserrat', sans-serif;
 }
 
 body { 
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
   
   .header {
@@ -16,8 +16,7 @@ body {
     background-color: #f1f1f1;
     padding: 10px 10px;
     background:transparent;
-    background-image: url('/images/blue-lightblue.png');
-    background-size:cover;
+    margin-top: 15px;
   }
   
   .header a {
@@ -38,20 +37,16 @@ body {
     padding: 9px;
     text-decoration: none;
     font-size: 18px; 
-    line-height: 20px;
+    line-height: 15px;
     border-radius: 15px;
     border: none;
+    font-weight: bold;
   }
   
   .header a.logo {
     font-size: 25px;
     font-weight: bold;
   }
-  
-  /* .header a:hover {
-    background-color: #ddd;
-    color: black;
-  } */
   
   .header a.active {
     background-color: dodgerblue;
@@ -62,42 +57,51 @@ body {
     float: right;
   }
 
-  #section {
-    overflow: hidden;
-    background-color: #f1f1f1;
-    padding: 10px 10px;
-    background:transparent;
-    background-image: url('/images/blue-lightblue.png');
-    background-size:cover;
-  }
-  #section button {
-    float: left;
-    color: black;
-    background-color:rgb(223, 223, 223);
-    text-align: center;
-    padding: 5px;
-    text-decoration: none;
-    font-size: 14px; 
-    font-weight: bold;
-    line-height: 15px;
-    border-radius: 10px;
-    cursor:pointer;
-    width: 150px;
-    border:none;
-  }
-  #section button:hover {
+  .header .header-right button {
     float: left;
     color: black;
     background-color:rgb(255, 255, 255);
     text-align: center;
-    padding: 5px;
+    padding: 10px 15px 10px 15px;
     text-decoration: none;
     font-size: 14px; 
     line-height: 15px;
     border-radius: 10px;
+    border: 3px solid black;
     cursor:pointer;
+    width: auto;
+    vertical-align: center;
   }
-  #section input {
+  .header .header-right button:hover {
+    float: left;
+    color: rgb(255, 255, 255);
+    background-color:rgb(0, 0, 0);
+    text-align: center;
+    padding: 10px 15px 10px 15px;
+    text-decoration: none;
+    font-size: 14px; 
+    line-height: 20px;
+    border-radius: 10px;
+    border: 3px solid black;
+    cursor:pointer;
+    width: auto;
+    vertical-align: center;
+  }
+
+  /* Item 1 properties */
+  #item1 {
+    background-color: rgb(255, 255, 255);
+    border-radius: 18px;
+    margin: 15px;
+  }
+  #item1 .button-class {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin-top: auto;
+  }
+  #item1 .button-class .donate-box input {
     float: left;
     color: black;
     text-align: center;
@@ -107,11 +111,26 @@ body {
     line-height: 15px;
     margin-left: 10px;
     border-radius: 10px;
+    width: 100px;
   }
-  #section input:disabled {
+
+
+  /* Item 2 properties */
+  #item2 {
+    background-color: rgb(255, 255, 255);
+    border-radius: 18px;
+    margin: 15px;
+  }
+  #item2 .button-class {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin-top: auto;
+  }
+  #item2 .button-class .donate-box input {
     float: left;
     color: black;
-    background-color: white;
     text-align: center;
     padding: 5px;
     text-decoration: none;
@@ -119,45 +138,87 @@ body {
     line-height: 15px;
     margin-left: 10px;
     border-radius: 10px;
+    width: 100px;
   }
-  #section span {
+
+  button {
     float: left;
-    color: black;
+    color: rgb(255, 255, 255);
+    font-family: 'Montserrat', sans-serif;
+    background-color:rgb(0, 0, 0);
     text-align: center;
-    padding: 5px;
+    padding: 10px;
+    text-decoration: none;
+    font-size: 14px; 
+    font-weight: bold;
+    line-height: 15px;
+    border-radius: 20px;
+    border: 3px solid black;
+    cursor:pointer;
+    width: 250px;
+  }
+  button:hover {
+    float: left;
+    color: rgb(0, 0, 0);
+    font-family: 'Montserrat', sans-serif;
+    background-color:rgb(255, 255, 255);
+    text-align: center;
+    padding: 10px;
     text-decoration: none;
     font-size: 14px; 
     line-height: 15px;
-    margin-left: 10px;
-    border-radius: 10px;
+    border-radius: 20px;
+    border-width: 4px;
+    border: 3px solid black;
+    cursor:pointer;
+    width: 250px;
   }
-  #section span img {
-    visibility: hidden;
+
+  .org-image img {
+    height: 130px;
+    width: 130px;
+  }
+
+  .brief-description {
+    padding: 10px;
+    font-weight: bold;
+  }
+
+  .curr-donations {
+    padding: 10px;
+    font-weight: bold;
   }
 
   .flex-container {
-
-    display: flex;
-      
-    /* flex-flow: column wrap; */ 
-    flex-direction: column; 
-    flex-wrap: wrap; 
-
+    display: flex;      
+    /* flex-flow: row wrap; */ 
+    flex-direction: row; 
+    flex-wrap: wrap;
     background:transparent;
     height: 100%;
     padding: 15px;
     gap: 5px;
-
   }
 
-  .flex-container > div{
+  .flex-container > div {
     /* background: #ffecb3; */
-    border: 2px solid #ffffff;
+    border: 4px solid #000000;
     border-radius: 5px;
-    /* padding: 8px; */
+    padding: 6px;
+    width: 400px;
+    /* height: 300px; */
+    text-align: center;
   }
 
-  
+  .flex-containter div h1 {
+    font-weight: bold;
+  }
+
+  .title {
+    padding-left: 18px;
+  }
+
+  /* For smaller (phone) screens */
   @media screen and (max-width: 500px) {
     .header a {
       float: none;

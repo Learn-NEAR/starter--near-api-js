@@ -5,7 +5,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call Contract Methods using NEAR</title>
-    <script src="/lib/near-api-js.js"></script>
+    <script src="./lib/near-api-js.js"></script>
+    <script>
+      globalThis.nearApiJs = nearApi;
+    </script>
+    <script src="./lib/rxjs.js"></script>
+    <script src="./lib/bn.js"></script>
+    <script>
+      globalThis.bn_js = BN;
+    </script>
+    <script src="./lib/@near-wallet-selector/core.js"></script>
+    <script src="./lib/@near-wallet-selector/wallet-utils.js"></script>
+    <script>
+      globalThis.walletUtils = WalletUtils;
+    </script>
+    <script src="./lib/@near-wallet-selector/near-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/my-near-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/ledger.js"></script>
+    <script src="./lib/@near-wallet-selector/math-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/nightly.js"></script>
+    <script src="./lib/@near-wallet-selector/nightly-connect.js"></script>
+    <script src="./lib/@near-wallet-selector/wallet-connect.js"></script>
+    <script src="./lib/@near-wallet-selector/sender.js"></script>
   </head>
   <body>
     <nav>
@@ -16,52 +37,110 @@
     <hr />
     <button id="hello">helloWorld</button>
     <br />
-    <button id="read">read</button> <input type="text" id="read-key" placeholder="key" />
+    <button id="read">read</button>
+    <input type="text" id="read-key" placeholder="key" />
     <br />
-    <button id="write">write</button> <input type="text" id="write-key" placeholder="key" /> <input type="text" id="write-value" placeholder="value" />
+    <button id="write">write</button>
+    <input type="text" id="write-key" placeholder="key" />
+    <input type="text" id="write-value" placeholder="value" />
 
     <script>
       (async () => {
-        const { connect, keyStores, WalletConnection, Contract } = nearApi;
+        const { providers, utils } = nearApi;
 
-        const CONTRACT_ID = 'dev-1634098284641-40067785396400';
+        const CONTRACT_ID = "dev-1634098284641-40067785396400";
+        const BOATLOAD_OF_GAS = utils.format.parseNearAmount("0.00000000003");
 
-        const near = await connect(config());
-        const wallet = new WalletConnection(near, 'ncd-ii');
+        const selector = await Core.setupWalletSelector({
+          network: "testnet",
+          modules: [
+            NearWallet.setupNearWallet(),
+            MyNearWallet.setupMyNearWallet(),
+            Ledger.setupLedger(),
+            MathWallet.setupMathWallet(),
+            Nightly.setupNightly(),
+            Sender.setupSender(),
+          ],
+        });
 
         const dom = setupDOMBindings();
 
-        const contract = new Contract(wallet.account(), CONTRACT_ID, {
-          viewMethods: ['helloWorld', 'read'],
-          changeMethods: ['write'],
-          sender: wallet.account()
-        });
+        const view = async (contractId, methodName, args = "") => {
+          const { network } = selector.options;
+          const provider = new providers.JsonRpcProvider({
+            url: network.nodeUrl,
+          });
 
-        if (wallet.isSignedIn()) {
-          dom.btnHello.addEventListener('click', async () => console.log(await contract.helloWorld()));
-          dom.btnRead.addEventListener('click', async () => console.log(await contract.read({ key: dom.txtReadKey.value })));
-          dom.btnWrite.addEventListener('click', async () => console.log(await contract.write({ key: dom.txtWriteKey.value, value: dom.txtWriteValue.value })));
-        }
+          const query = await provider.query({
+            request_type: "call_function",
+            account_id: contractId,
+            method_name: methodName,
+            args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
+            finality: "optimistic",
+          });
 
-        function config() {
-          return {
-            networkId: 'testnet',
-            keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-            nodeUrl: 'https://rpc.testnet.near.org',
-            walletUrl: 'https://wallet.testnet.near.org',
-            helperUrl: 'https://helper.testnet.near.org',
-            explorerUrl: 'https://explorer.testnet.near.org'
-          };
+          return JSON.parse(Buffer.from(query.result).toString());
+        };
+
+        const change = async (contractId, methodName, args = "") => {
+          const { contract } = selector.store.getState();
+          const wallet = await selector.wallet();
+          const [{ accountId }] = await wallet.getAccounts();
+
+          const response = await wallet.signAndSendTransaction({
+            signerId: accountId,
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName,
+                  args,
+                  gas: BOATLOAD_OF_GAS,
+                  deposit: "0",
+                },
+              },
+            ],
+          });
+
+          console.log("response received.");
+
+          const { transaction_outcome: txo, status } = response;
+
+          console.log(`gas burned: ${txo.outcome.gas_burnt}`);
+          console.log(`tokens burned: ${txo.outcome.tokens_burnt}`);
+          console.log(`logs: \n${txo.outcome.logs}`);
+
+          const { SuccessValue: value } = status;
+          console.log(value);
+        };
+
+        const helloWorld = async () => view(CONTRACT_ID, "helloWorld");
+        const read = async (key) => view(CONTRACT_ID, "read", { key });
+        const write = async (key, value) =>
+          change(CONTRACT_ID, "write", { key, value });
+
+        if (selector.isSignedIn()) {
+          dom.btnHello.addEventListener("click", async () =>
+            console.log(await helloWorld())
+          );
+          dom.btnRead.addEventListener("click", async () =>
+            console.log(await read(dom.txtReadKey.value))
+          );
+          dom.btnWrite.addEventListener("click", async () =>
+            console.log(
+              await write(dom.txtWriteKey.value, dom.txtWriteValue.value)
+            )
+          );
         }
 
         function setupDOMBindings() {
           return {
-            btnHello: document.querySelector('#hello'),
-            btnRead: document.querySelector('#read'),
-            txtReadKey: document.querySelector('#read-key'),
-            btnWrite: document.querySelector('#write'),
-            txtWriteKey: document.querySelector('#write-key'),
-            txtWriteValue: document.querySelector('#write-value')
+            btnHello: document.querySelector("#hello"),
+            btnRead: document.querySelector("#read"),
+            txtReadKey: document.querySelector("#read-key"),
+            btnWrite: document.querySelector("#write"),
+            txtWriteKey: document.querySelector("#write-key"),
+            txtWriteValue: document.querySelector("#write-value"),
           };
         }
       })();

@@ -5,7 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login to NEAR</title>
-    <script src="/lib/near-api-js.js"></script>
+    <script src="./lib/near-api-js.js"></script>
+    <script src="./lib/rxjs.js"></script>
+    <script src="./lib/@near-wallet-selector/core.js"></script>
+    <script src="./lib/@near-wallet-selector/near-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/my-near-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/ledger.js"></script>
+    <script src="./lib/@near-wallet-selector/math-wallet.js"></script>
+    <script src="./lib/@near-wallet-selector/nightly.js"></script>
+    <script src="./lib/@near-wallet-selector/nightly-connect.js"></script>
+    <script src="./lib/@near-wallet-selector/wallet-connect.js"></script>
+    <script src="./lib/@near-wallet-selector/sender.js"></script>
   </head>
   <body>
     <nav>
@@ -15,51 +25,105 @@
     </nav>
     <hr />
     <button>Login</button>
+    <div>
+      <label for="wallet-selector">Select your wallet</label>
+      <select name="wallet-selector"></select>
+    </div>
 
     <script>
       (async () => {
-        const { connect, keyStores, WalletConnection } = nearApi;
+        const contractId = "dev-1634098284641-40067785396400";
 
-        const button = document.querySelector('button');
+        const selector = await Core.setupWalletSelector({
+          network: "testnet",
+          modules: [
+            NearWallet.setupNearWallet(),
+            MyNearWallet.setupMyNearWallet(),
+            Ledger.setupLedger(),
+            MathWallet.setupMathWallet(),
+            Nightly.setupNightly(),
+            Sender.setupSender(),
+          ],
+        });
 
-        const near = await connect(config());
-        const wallet = new WalletConnection(near, 'ncd-ii');
+        const loginButton = document.querySelector("button");
+        const walletSelection = document.querySelector("select");
 
-        if (wallet.isSignedIn()) {
-          const accountId = wallet.getAccountId();
-          button.innerHTML = `Logout ${accountId}`;
-          button.addEventListener('click', signOut);
+        selector.store.getState().modules.forEach((module) => {
+          const option = document.createElement("option");
+          option.value = module.id;
+          option.textContent = module.metadata.name;
+          walletSelection.appendChild(option);
+        });
+
+        console.log(selector.isSignedIn());
+
+        if (selector.isSignedIn()) {
+          const [{ accountId }] = await (await selector.wallet()).getAccounts();
+
+          loginButton.innerText = `Logout ${accountId}`;
+          loginButton.addEventListener("click", () => {
+            selector.signOut();
+          });
         } else {
-          button.addEventListener('click', signIn);
-        }
+          loginButton.addEventListener("click", async () => {
+            const selectedModuleId =
+              walletSelection.options[walletSelection.selectedIndex].value;
+            const module = selector.store
+              .getState()
+              .modules.find((module) => module.id === selectedModuleId);
 
-        // ----------------
-        // Helper functions
-        // ----------------
-
-        function signIn() {
-          wallet.requestSignIn({
-            contractId: 'dev-1634098284641-40067785396400',
-            methodNames: ['write']
+            const wallet = await module.wallet();
+            await wallet.signIn({
+              contractId,
+              methodNames: ["write"],
+            });
           });
         }
-
-        function signOut() {
-          wallet.signOut();
-          button.innerHTML = 'Login';
-        }
-
-        function config() {
-          return {
-            networkId: 'testnet',
-            keyStore: new keyStores.BrowserLocalStorageKeyStore(),
-            nodeUrl: 'https://rpc.testnet.near.org',
-            walletUrl: 'https://wallet.testnet.near.org',
-            helperUrl: 'https://helper.testnet.near.org',
-            explorerUrl: 'https://explorer.testnet.near.org'
-          };
-        }
       })();
+      // (async () => {
+      //   const { connect, keyStores, WalletConnection } = nearApi;
+
+      //   const button = document.querySelector("button");
+
+      //   const near = await connect(config());
+      //   const wallet = new WalletConnection(near, "ncd-ii");
+
+      //   if (wallet.isSignedIn()) {
+      //     const accountId = wallet.getAccountId();
+      //     button.innerHTML = `Logout ${accountId}`;
+      //     button.addEventListener("click", signOut);
+      //   } else {
+      //     button.addEventListener("click", signIn);
+      //   }
+
+      //   // ----------------
+      //   // Helper functions
+      //   // ----------------
+
+      //   function signIn() {
+      //     wallet.requestSignIn({
+      //       contractId: "dev-1634098284641-40067785396400",
+      //       methodNames: ["write"],
+      //     });
+      //   }
+
+      //   function signOut() {
+      //     wallet.signOut();
+      //     button.innerHTML = "Login";
+      //   }
+
+      //   function config() {
+      //     return {
+      //       networkId: "testnet",
+      //       keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+      //       nodeUrl: "https://rpc.testnet.near.org",
+      //       walletUrl: "https://wallet.testnet.near.org",
+      //       helperUrl: "https://helper.testnet.near.org",
+      //       explorerUrl: "https://explorer.testnet.near.org",
+      //     };
+      //   }
+      // })();
     </script>
   </body>
 </html>
